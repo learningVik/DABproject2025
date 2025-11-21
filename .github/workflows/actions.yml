@@ -1,5 +1,4 @@
 name: Databricks Repo Sync
-
 on:
   push:
     branches:
@@ -9,37 +8,41 @@ on:
 env:
   REPO_PATH: ${{ vars.REPO_PATH }}
   GIT_REPO_URL: ${{ vars.REPO_URL }}
-  # GIT_BRANCH: ${{ github.ref_name }}
 
 jobs:
   sync_databricks_repo:
     runs-on: ubuntu-latest
     environment: Databricks
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Databricks CLI
-        uses: databricks/setup-cli@${{ github.ref_name }}
+        # Use a static version for the action checkout, not the ref_name
+        uses: databricks/setup-cli@v0.2.0 # Replace with a specific, stable version
         with:
           databricks-host: ${{ secrets.DATABRICKS_HOST }}
           databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
-      
+
       # Added step to install jq
       - name: Install jq
         run: |
           sudo apt-get update && sudo apt-get install -y jq
 
       - name: Check if Databricks Repo exists and sync
+        # The 'github.ref_name' is now correctly used inside the 'run' block within the 'steps'
         run: |
+          # Define a local variable for clarity and repeated use
+          CURRENT_BRANCH=${{ github.ref_name }}
+          
           # Check if repo exists
-          REPO_EXISTS=$(databricks repos list --path "$REPO_PATH/${{ github.ref_name }}" --output JSON | jq '.repos | length')
-
+          REPO_EXISTS=$(databricks repos list --path "$REPO_PATH/$CURRENT_BRANCH" --output JSON | jq '.repos | length')
+          
           if [ "$REPO_EXISTS" -eq 0 ]; then
             echo "Databricks Repo does not exist. Creating it."
-            databricks repos create --path "$REPO_PATH/${{ github.ref_name }}" --url "$GIT_REPO_URL" --provider GITHUB --branch ${{ github.ref_name }}
+            databricks repos create --path "$REPO_PATH/$CURRENT_BRANCH" --url "$GIT_REPO_URL" --provider GITHUB --branch "$CURRENT_BRANCH"
           else
             echo "Databricks Repo exists. Updating it."
-            databricks repos update --path "$REPO_PATH/${{ github.ref_name }}" --branch ${{ github.ref_name }}
+            databricks repos update --path "$REPO_PATH/$CURRENT_BRANCH" --branch "$CURRENT_BRANCH"
           fi
+
