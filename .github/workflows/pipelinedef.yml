@@ -1,0 +1,36 @@
+    name: Databricks CI/CD
+
+    on:
+      push:
+        branches:
+          - dev
+          - main
+
+    jobs:
+      deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v3
+
+          - name: Deploy to Dev
+            if: github.ref == 'refs/heads/dev'
+            uses: databricks/databricks-github-actions@v1
+            with:
+              databricks-host: ${{ secrets.DATABRICKS_HOST }}
+              databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
+              # Update the path to your notebook within the dev Git folder
+              git-folder-path: /Repos/DABproject/dev
+              # Specify the notebook path within the Git folder
+              source-path: ../notebooks/demo_repo_notebook.ipynb
+
+          - name: Deploy to Prod
+            if: github.ref == 'refs/heads/main' # or master
+            uses: databricks/databricks-github-actions@v1
+            with:
+              databricks-host: ${{ secrets.DATABRICKS_HOST }}
+              databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
+              # Update the path to your notebook within the prod Git folder
+              git-folder-path: /Repos/DABproject/main
+              # Specify the notebook path within the Git folder
+              source-path: ../notebooks/demo_repo_notebook.ipynb
