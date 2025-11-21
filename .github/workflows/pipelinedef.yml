@@ -1,36 +1,24 @@
-    name: Databricks CI/CD
+name: Databricks Notebook Deployment
 
-    on:
-      push:
-        branches:
-          - dev
-          - main
+on:
+  push:
+    branches:
+      - dev  # Trigger on push to dev branch
+      - main # Trigger on push to main branch
 
-    jobs:
-      deploy:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout repository
-            uses: actions/checkout@v3
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-          - name: Deploy to Dev
-            if: github.ref == 'refs/heads/dev'
-            uses: databricks/databricks-github-actions@v1
-            with:
-              databricks-host: ${{ secrets.DATABRICKS_HOST }}
-              databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
-              # Update the path to your notebook within the dev Git folder
-              git-folder-path: /Repos/DABproject/dev
-              # Specify the notebook path within the Git folder
-              source-path: ../notebooks/demo_repo_notebook.ipynb
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@v0.2.0
+        with:
+          databricks-host: ${{ secrets.DATABRICKS_HOST }}
+          databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
 
-          - name: Deploy to Prod
-            if: github.ref == 'refs/heads/main' # or master
-            uses: databricks/databricks-github-actions@v1
-            with:
-              databricks-host: ${{ secrets.DATABRICKS_HOST }}
-              databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
-              # Update the path to your notebook within the prod Git folder
-              git-folder-path: /Repos/DABproject/main
-              # Specify the notebook path within the Git folder
-              source-path: ../notebooks/demo_repo_notebook.ipynb
+      - name: Update Databricks Git Folder
+        run: |
+          databricks repos update --path /Repos/DABproject2025/${{ github.ref_name }} --branch ${{ github.ref_name }}
