@@ -7,9 +7,9 @@ on:
       - main
 
 env:
-  REPO_PATH: ${{ vars.REPO_PATH }}/${{ github.ref_name }}
+  REPO_PATH: ${{ vars.REPO_PATH }}
   GIT_REPO_URL: ${{ vars.REPO_URL }}
-  GIT_BRANCH: ${{ github.ref_name }}
+  # GIT_BRANCH: ${{ github.ref_name }}
 
 jobs:
   sync_databricks_repo:
@@ -34,12 +34,12 @@ jobs:
       - name: Check if Databricks Repo exists and sync
         run: |
           # Check if repo exists
-          REPO_EXISTS=$(databricks repos list --path "$REPO_PATH" --output JSON | jq '.repos | length')
+          REPO_EXISTS=$(databricks repos list --path "$REPO_PATH/${{ github.ref_name }}" --output JSON | jq '.repos | length')
 
           if [ "$REPO_EXISTS" -eq 0 ]; then
             echo "Databricks Repo does not exist. Creating it."
-            databricks repos create --path "$REPO_PATH" --url "$GIT_REPO_URL" --provider GITHUB --branch "$GIT_BRANCH"
+            databricks repos create --path "$REPO_PATH/${{ github.ref_name }}" --url "$GIT_REPO_URL" --provider GITHUB --branch ${{ github.ref_name }}
           else
             echo "Databricks Repo exists. Updating it."
-            databricks repos update --path "$REPO_PATH" --branch "$GIT_BRANCH"
+            databricks repos update --path "$REPO_PATH/${{ github.ref_name }}" --branch ${{ github.ref_name }}
           fi
