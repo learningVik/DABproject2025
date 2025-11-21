@@ -24,26 +24,8 @@ jobs:
           databricks-host: ${{ secrets.DATABRICKS_HOST }}
           databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
 
-      # Added step to install jq
-      - name: Install jq
-        run: |
-          sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Check if Databricks Repo exists and sync
-        # The 'github.ref_name' is now correctly used inside the 'run' block within the 'steps'
-        run: |
-          # Define a local variable for clarity and repeated use
-          CURRENT_BRANCH=${{ github.ref_name }}
-          
-          # Check if repo exists
-          REPO_EXISTS=$(databricks repos list --path-prefix $REPO_PATH/$CURRENT_BRANCH --output JSON | jq .repos | length)
-
-          
-          if [ "$REPO_EXISTS" -eq 0 ]; then
-            echo "Databricks Repo does not exist. Creating it."
-            databricks repos create --path "$REPO_PATH/$CURRENT_BRANCH" --url "$GIT_REPO_URL" --provider GITHUB --branch "$CURRENT_BRANCH"
-          else
-            echo "Databricks Repo exists. Updating it."
-            databricks repos update --path "$REPO_PATH/$CURRENT_BRANCH" --branch "$CURRENT_BRANCH"
-          fi
-
+      - name: Deploy Databricks Asset Bundle
+          run: databricks bundle deploy -t ${{ github.ref_name }} # Or your target environment
+          env:
+            DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+            DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}

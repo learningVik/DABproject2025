@@ -14,7 +14,7 @@ targets:
       files:
         my_notebooks:
           path: /Repos/DABproject2025/dev/notebooks/
-  prod:
+  main:
     workspace:
       host: https://dbc-d00c81fb-9e88.cloud.databricks.com/
     resources:
