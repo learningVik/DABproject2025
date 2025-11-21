@@ -1,0 +1,23 @@
+bundle:
+  name: my-notebook-bundle
+
+resources:
+  notebooks:
+    my_notebook_folder:
+      path: notebooks/
+
+targets:
+  dev:
+    workspace:
+      host: https://dbc-d00c81fb-9e88.cloud.databricks.com/
+    resources:
+      files:
+        my_notebooks:
+          path: /Repos/DABproject2025/dev/notebooks/
+  prod:
+    workspace:
+      host: https://dbc-d00c81fb-9e88.cloud.databricks.com/
+    resources:
+      files:
+        my_notebooks:
+          path: /Repos/DABproject2025/prod/notebooks/
