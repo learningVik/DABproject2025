@@ -5,35 +5,41 @@ on:
     branches:
       - dev
       - main
+
 env:
-REPO_PATH: ${{ vars.REPO_PATH }}/${{ github.ref_name }}
-GIT_REPO_URL: ${{ vars.REPO_URL }}
-GIT_BRANCH: ${{ github.ref_name }}
+  REPO_PATH: ${{ vars.REPO_PATH }}/${{ github.ref_name }}
+  GIT_REPO_URL: ${{ vars.REPO_URL }}
+  GIT_BRANCH: ${{ github.ref_name }}
 
 jobs:
   sync_databricks_repo:
     runs-on: ubuntu-latest
     environment: Databricks
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Databricks CLI
-      uses: databricks/setup-cli@v1
-      with:
-        databricks-host: ${{ secrets.DATABRICKS_HOST }}
-        databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
+      - name: Setup Databricks CLI
+        uses: databricks/setup-cli@v1
+        with:
+          databricks-host: ${{ secrets.DATABRICKS_HOST }}
+          databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
+      
+      # Added step to install jq
+      - name: Install jq
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq
 
-    - name: Check if Databricks Repo exists and sync
-	
-run: |
-  # Check if repo exists
-  REPO_EXISTS=$(databricks repos list --path "$REPO_PATH" --output JSON | jq '.repos | length')
+      - name: Check if Databricks Repo exists and sync
+        run: |
+          # Check if repo exists
+          REPO_EXISTS=$(databricks repos list --path "$REPO_PATH" --output JSON | jq '.repos | length')
 
-  if [ "$REPO_EXISTS" -eq 0 ]; then
-  echo "Databricks Repo does not exist. Creating it."
-  databricks repos create --path "$REPO_PATH" --url "$GIT_REPO_URL" --provider GITHUB --branch "$GIT_BRANCH"
-  else
-  echo "Databricks Repo exists. Updating it."
-  databricks repos update --path "$REPO_PATH" --branch "$GIT_BRANCH"
-  fi
+          if [ "$REPO_EXISTS" -eq 0 ]; then
+            echo "Databricks Repo does not exist. Creating it."
+            databricks repos create --path "$REPO_PATH" --url "$GIT_REPO_URL" --provider GITHUB --branch "$GIT_BRANCH"
+          else
+            echo "Databricks Repo exists. Updating it."
+            databricks repos update --path "$REPO_PATH" --branch "$GIT_BRANCH"
+          fi
