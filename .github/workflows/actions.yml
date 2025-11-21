@@ -19,7 +19,7 @@ jobs:
 
       - name: Setup Databricks CLI
         # Use a static version for the action checkout, not the ref_name
-        uses: databricks/setup-cli@v0.2.0 # Replace with a specific, stable version
+        uses: databricks/setup-cli@v0.205.0 # Replace with a specific, stable version
         with:
           databricks-host: ${{ secrets.DATABRICKS_HOST }}
           databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
