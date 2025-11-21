@@ -36,7 +36,8 @@ jobs:
           CURRENT_BRANCH=${{ github.ref_name }}
           
           # Check if repo exists
-          REPO_EXISTS=$(databricks repos list --path "$REPO_PATH/$CURRENT_BRANCH" --output JSON | jq '.repos | length')
+          REPO_EXISTS=$(databricks repos list --path-prefix $REPO_PATH/$CURRENT_BRANCH --output JSON | jq .repos | length)
+
           
           if [ "$REPO_EXISTS" -eq 0 ]; then
             echo "Databricks Repo does not exist. Creating it."
