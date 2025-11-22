@@ -1,0 +1,38 @@
+# working code---------
+
+resources:
+  jobs:
+    dab_demo_job:
+      name: dab_demo_job
+      # library: ../..src/lib/
+      source: WORKSPACE  
+      trigger:
+        pause_status: UNPAUSED
+        periodic:
+          interval: 1
+          unit: DAYS
+      tasks:
+        - task_key: demo_notebook1
+          notebook_task:
+            notebook_path: ../../src/main/first_dab_notebook.py
+            base_parameters:
+              env : ${var.environment}
+            #source: WORKSPACE
+        - task_key: demo_notebook2
+          notebook_task:
+            notebook_path: ../../src/main/second_notebook.py
+            base_parameters:
+              "env" : ${var.environment}
+            #source: WORKSPACE
+          depends_on:
+            - task_key: demo_notebook1    
+      environment_key: demo_notebook_environment
+      queue:
+        enabled: true
+  # environments:
+  #   - environment:
+  #       key: demo_notebook_environment
+  #       spec:
+  #         environment:
+  #           version: "4"
+  #           performance_target: PERFORMANCE_OPTIMIZED

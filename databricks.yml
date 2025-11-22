@@ -1,23 +1,28 @@
 bundle:
   name: my-notebook-bundle
-
-resources:
-  notebooks:
-    my_notebook_folder:
-      path: notebooks/
-
+variables:
+      environment:
+        default: "dev"
+include:
+  - resources/pipelines/*.yml
+# resources:
+#   notebooks:
+#     my_notebook:
+#       path: ../notebooks/ 
 targets:
   dev:
+    presets:
+      name_prefix: "dev_"
     workspace:
       host: https://dbc-d00c81fb-9e88.cloud.databricks.com/
-    resources:
-      files:
-        my_notebooks:
-          path: /Repos/DABproject2025/dev/notebooks/
+      root_path: /repos/SUBFolder/dev/ 
+    variables:
+          environment: "dev"  
   main:
+    presets:
+      name_prefix: "main_"
     workspace:
       host: https://dbc-d00c81fb-9e88.cloud.databricks.com/
-    resources:
-      files:
-        my_notebooks:
-          path: /Repos/DABproject2025/prod/notebooks/
+      root_path: /repos/SUBFolder/main/
+    variables:
+          environment: "main"  
