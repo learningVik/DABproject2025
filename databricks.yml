@@ -15,7 +15,7 @@ targets:
       name_prefix: "dev_"
     workspace:
       host: https://dbc-d00c81fb-9e88.cloud.databricks.com/
-      root_path: /repos/SUBFolder/dev/ 
+      root_path: /Repos/SUBFolder/dev/ 
     variables:
           environment: "dev"  
   main:
