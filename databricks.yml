@@ -25,4 +25,4 @@ targets:
       host: https://dbc-d00c81fb-9e88.cloud.databricks.com/
       root_path: /repos/SUBFolder/main/
     variables:
-          environment: "main"  
+          environment: "main"
