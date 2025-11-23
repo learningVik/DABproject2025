@@ -5,7 +5,7 @@ resources:
     dab_demo_job:
       name: dab_demo_job
       # library: ../..src/lib/
-      source: WORKSPACE  
+      # source: WORKSPACE  
       trigger:
         pause_status: UNPAUSED
         periodic:
