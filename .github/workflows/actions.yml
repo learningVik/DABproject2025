@@ -24,7 +24,7 @@ jobs:
           # fetch-depth 0 is important to run hooks on all files/commits
           fetch-depth: 0
       - name: Run pre-commit hooks
-        uses: pre-commit/action@v3
+        uses: pre-commit/action@v3.0.1
 
   # --- Job 2: Sync Databricks Repo via Bundle Deploy ---
   sync_databricks_repo:
