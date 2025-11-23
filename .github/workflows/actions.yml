@@ -10,12 +10,13 @@ env:
   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
-runs-on: ubuntu-latest
+# runs-on: ubuntu-latest
 
 jobs:
   # --- Job 1: Pre-commit checks (optional) ---
   pre_commit_checks:
     # Use the globally defined runs-on and environment keys
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,6 +32,7 @@ jobs:
     # needs: pre_commit_checks
     # Use the globally defined runs-on and environment keys
     needs: pre_commit_checks # This makes Job 2 wait for Job 1
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
