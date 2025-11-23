@@ -1,4 +1,5 @@
 name: Databricks Repo Sync
+
 on:
   push:
     branches:
@@ -6,26 +7,44 @@ on:
       - main
 
 env:
-  REPO_PATH: ${{ vars.REPO_PATH }}
-  GIT_REPO_URL: ${{ vars.REPO_URL }}
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+runs-on: ubuntu-latest
 
 jobs:
+  # --- Job 1: Pre-commit checks (optional) ---
+  pre_commit_checks:
+    # Use the globally defined runs-on and environment keys
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # fetch-depth 0 is important to run hooks on all files/commits
+          fetch-depth: 0
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3
+
+  # --- Job 2: Sync Databricks Repo via Bundle Deploy ---
   sync_databricks_repo:
-    runs-on: ubuntu-latest
-    environment: Databricks
+    # Ensure this job runs after the checks job, if the previous job is critical
+    # needs: pre_commit_checks
+    # Use the globally defined runs-on and environment keys
+    needs: pre_commit_checks # This makes Job 2 wait for Job 1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Databricks CLI
-        # Use a static version for the action checkout, not the ref_name
-        uses: databricks/setup-cli@v0.205.0 # Replace with a specific, stable version
-        with:
-          databricks-host: ${{ secrets.DATABRICKS_HOST }}
-          databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
+        # It's highly recommended to use a specific, stable version tag (e.g., @v0.211.0)
+        uses: databricks/setup-cli@v0.211.0
 
       - name: Deploy Databricks Asset Bundle
-          run: databricks bundle deploy -t ${{ github.ref_name }} # Or your target environment
-          env:
-            DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-            DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        # Use an 'if' condition to select the target based on the branch name.
+        # This assumes you have 'dev' and 'prod' targets defined in your databricks-bundle.yml
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            databricks bundle deploy -t main
+          else
+            databricks bundle deploy -t dev
+          fi
