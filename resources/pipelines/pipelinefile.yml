@@ -6,11 +6,10 @@ resources:
       name: dab_demo_job
       # library: ../..src/lib/
       # source: WORKSPACE  
-      trigger:
+      schedule:
+        quartz_cron_expression: 8 50 20 * * ?
+        timezone_id: UTC
         pause_status: UNPAUSED
-        periodic:
-          interval: 1
-          unit: DAYS
       tasks:
         - task_key: demo_notebook1
           notebook_task:
